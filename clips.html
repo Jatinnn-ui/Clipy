@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111312"><meta name="description" content="Clipy — turn any moment into a clip. A focused workspace for short-form video and beautiful captions.">
+  <title>Clipy — Turn any moment into a clip.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css"><script src="app.js?v=20260917-2" defer></script>
+</head>
+<body>
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3-.6 2.4-2 .9-2.2-.7-2 3.4 1.8 1.7v2.5L2.2 15l2 3.4 2.2-.7 2 .9L9 21h4l.6-2.4 2-.9 2.2.7 2-3.4-1.8-1.8v-2.5l1.8-1.7-2-3.4-2.2.7-2-.9L13 3Z"/><circle cx="11" cy="12" r="3"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="m9 15 6-6m-7 9-1 1a4.2 4.2 0 0 1-6-6l5-5a4.2 4.2 0 0 1 6 0m0 8a4.2 4.2 0 0 0 6 0l5-5a4.2 4.2 0 0 0-6-6l-1 1" transform="translate(1 0) scale(.9)"/></symbol>
+    <symbol id="i-paste" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H5v16h14V5h-3M9 12h6m-6 4h6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V4h6l3 3h9v13H3Z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  </defs></svg>
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="Clipy home"><span class="brand-icon"><svg><use href="#i-play"/></svg></span>clipy<span class="brand-dot">.</span></a>
+    <nav aria-label="Main navigation"><a id="create-nav" class="nav-link active" href="index.html">Create</a><a id="clips-nav" class="nav-link" href="clips.html">My Clips <span id="draft-count" hidden>0</span></a></nav>
+    <button class="icon-button settings-button" id="settings-button" aria-label="Settings"><svg><use href="#i-settings"/></svg></button>
+  </header>
+  <main id="create-page">
+    <section class="hero" aria-labelledby="hero-title">
+      <div><p class="eyebrow"><span></span> SMALL CLIPS. BIG POSSIBILITIES.</p><h1 id="hero-title">Turn any moment<br>into a <span>clip.</span></h1></div>
+      <div class="hero-aside"><p>Your best moments deserve to be seen.<br>Pick a moment. Make it yours.<br>Let the captions do the talking.</p><span class="hero-note"><svg><use href="#i-spark"/></svg> Less editing. More creating.</span></div>
+    </section>
+    <section class="workspace" aria-label="Clip creation workspace">
+      <div class="creation-panel">
+        <div class="section-heading"><span class="step-number">01</span><h2>Start with a moment</h2><span class="small-label">THE CREATIVE PART IS YOURS</span></div>
+        <form id="clip-form" novalidate>
+          <label class="field-label" for="youtube-url">YouTube URL</label>
+          <div class="url-field"><svg><use href="#i-link"/></svg><input type="url" id="youtube-url" placeholder="Paste your YouTube link here" autocomplete="off" aria-describedby="url-error"><button type="button" id="paste-button" class="icon-button" aria-label="Paste YouTube URL"><svg><use href="#i-paste"/></svg></button></div>
+          <p class="field-error" id="url-error" hidden></p>
+          <div class="source-info" id="source-info" hidden><img id="source-thumbnail" alt="YouTube video thumbnail"><div><strong>Video link added</strong><span id="video-id"></span></div><span class="source-check">✓</span></div>
+          <p class="input-hint" id="url-hint">A podcast, a big idea, or a moment worth sharing.</p>
+          <div class="timing-label"><label class="field-label" for="start-time">Choose your moment</label><span id="duration-badge">30 sec clip</span></div>
+          <div class="time-row"><div class="time-input"><label for="start-time">START</label><div><svg><use href="#i-clock"/></svg><input id="start-time" value="00:00" spellcheck="false" aria-describedby="time-error"></div></div><span class="time-separator">→</span><div class="time-input"><label for="end-time">END</label><div><svg><use href="#i-clock"/></svg><input id="end-time" value="00:30" spellcheck="false" aria-describedby="time-error"></div></div></div>
+          <p class="field-error" id="time-error" hidden></p>
+          <div class="format-row"><div><label class="field-label" for="aspect-ratio">Aspect ratio</label><div class="select-wrap"><span class="ratio-icon"></span><select id="aspect-ratio"><option value="9:16">9:16 · Vertical</option><option value="16:9">16:9 · Landscape</option><option value="1:1">1:1 · Square</option></select></div></div><div><label class="field-label" for="caption-position">Caption position</label><select id="caption-position"><option value="bottom">Bottom</option><option value="center">Center</option><option value="top">Top</option></select></div></div>
+          <div class="style-heading"><span class="field-label" id="style-label">Find your caption style</span><span>Make every word count.</span></div>
+          <div class="style-options" role="group" aria-labelledby="style-label">
+            <button type="button" class="style-option selected" data-style="dynamic" aria-pressed="true"><span class="style-sample dynamic-sample">Aa<span>↗</span></span><span>Dynamic</span><i>✓</i></button>
+            <button type="button" class="style-option" data-style="minimal" aria-pressed="false"><span class="style-sample minimal-sample">Aa</span><span>Minimal</span><i>✓</i></button>
+            <button type="button" class="style-option" data-style="highlight" aria-pressed="false"><span class="style-sample highlight-sample"><b>Aa</b></span><span>Highlight</span><i>✓</i></button>
+            <button type="button" class="style-option" data-style="cinematic" aria-pressed="false"><span class="style-sample cinematic-sample">Aa</span><span>Cinematic</span><i>✓</i></button>
+          </div>
+          <label class="permission-check"><input type="checkbox" id="authorized"><span>I own this video or have permission to use it.</span></label>
+          <p class="field-error" id="permission-error" hidden></p>
+          <button class="primary-button" id="create-button" type="submit"><svg><use href="#i-spark"/></svg>Create Clip<svg class="button-arrow"><use href="#i-arrow"/></svg></button>
+          <p class="mode-note">Frontend preview · Video processing isn’t connected</p>
+        </form>
+      </div>
+      <aside class="preview-panel" aria-label="Caption style preview">
+        <div class="preview-heading"><span><span class="live-dot"></span> THE LOOK & FEEL</span><button id="edit-preview-button" class="text-button">Customize <span>↗</span></button></div>
+        <div id="video-preview" class="video-preview" data-style="dynamic" data-position="bottom">
+          <img class="preview-image" src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=85" alt="Dramatic sunlit mountain peaks beneath a blue sky">
+          <div class="preview-shade"></div><span class="preview-top-label"><span></span> A LITTLE PERSPECTIVE</span><span class="preview-watermark">clipy.</span>
+          <div class="caption-overlay" id="caption-overlay" aria-label="Sample animated captions"><span>GREAT THINGS</span><span>TAKE <b class="active-word">TIME.</b></span></div>
+          <button id="preview-play" class="preview-play" aria-label="Play caption animation"><svg><use href="#i-play"/></svg></button>
+          <div class="preview-controls"><button id="play-toggle" class="icon-button" aria-label="Play caption animation"><svg><use href="#i-play"/></svg></button><span id="preview-time">0:00 <span>/ 0:12</span></span><button class="icon-button" id="sound-info" aria-label="Audio information"><svg><use href="#i-volume"/></svg><span class="muted-slash"></span></button><input id="preview-timeline" type="range" min="0" max="12" value="0" step="0.05" aria-label="Caption preview timeline"></div>
+        </div>
+        <div class="preview-caption"><svg><use href="#i-spark"/></svg><span>Your words. A little more alive.</span></div>
+        <p class="preview-disclosure" id="preview-disclosure">Sample image & animated text — not a generated video</p>
+      </aside>
+    </section>
+    <section class="benefits" aria-label="Designed for creators"><span><svg><use href="#i-clock"/></svg>Every second, intentional.</span><span><svg><use href="#i-spark"/></svg>Captions with character.</span><span><span class="small-frame"></span>Made for the small screen.</span></section>
+  </main>
+  <main id="clips-page" hidden><section class="library-heading"><div><p class="eyebrow"><span></span> YOUR NEXT GREAT MOMENT</p><h1>My Clips<span>.</span></h1><p>Your saved ideas, ready to pick up where you left off.</p></div><a class="primary-button" href="index.html">＋ Create a clip</a></section><div class="library-notice">Local drafts only. Nothing here has been rendered into video.</div><section id="clips-grid" class="clips-grid" aria-label="Saved clip drafts"></section></main>
+  <footer class="site-footer"><span>A little less editing. A lot more you.</span><span>Made for moments that matter.<span class="footer-star">✳</span></span></footer>
+  <dialog id="editor-dialog"><div class="dialog-heading"><div><p class="eyebrow">MAKE IT YOURS</p><h2>Fine-tune your captions.</h2></div><button class="icon-button" data-close aria-label="Close caption editor"><svg><use href="#i-close"/></svg></button></div><p class="dialog-description">Changes apply to the sample preview. Real video rendering requires a connected backend.</p><div class="editor-fields"><label>Caption style<select id="editor-style"><option value="dynamic">Dynamic</option><option value="minimal">Minimal</option><option value="highlight">Highlight</option><option value="cinematic">Cinematic</option></select></label><label>Position<select id="editor-position"><option value="bottom">Bottom</option><option value="center">Center</option><option value="top">Top</option></select></label><label>Font size <span id="font-size-value">30 px</span><input id="font-size" type="range" min="18" max="38" value="30"></label><label>Font weight<select id="font-weight"><option value="800">Extra bold</option><option value="700">Bold</option><option value="500">Medium</option></select></label><label class="toggle-row">Word animation<input id="animation-enabled" type="checkbox" checked></label><label class="toggle-row">Accent highlight<input id="highlight-enabled" type="checkbox" checked></label></div><button class="primary-button" data-close>Apply to preview <svg><use href="#i-check"/></svg></button></dialog>
+  <dialog id="processing-dialog"><div class="dialog-heading"><span class="dialog-symbol"><svg><use href="#i-link"/></svg></span><button class="icon-button" data-close aria-label="Close processing information"><svg><use href="#i-close"/></svg></button></div><p class="eyebrow">A QUICK HEADS-UP</p><h2>Your moment is picked.<br>Rendering comes next.</h2><p class="dialog-description">This is the frontend version of Clipy. An authorized video source, FFmpeg backend, and transcription provider need to be connected before we can create an MP4.</p><ol class="processing-steps"><li class="complete"><span>✓</span>Video link & timestamps validated</li><li class="blocked"><span>!</span>Video processing is not connected</li><li><span>○</span>Word-level transcription</li><li><span>○</span>Caption rendering & MP4 export</li></ol><p class="honest-note">No video has been downloaded, transcribed, or generated.</p><button id="save-draft" class="primary-button">Save as a draft <svg><use href="#i-folder"/></svg></button><button id="try-preview" class="secondary-button">Try the caption preview instead</button></dialog>
+  <dialog id="settings-dialog"><div class="dialog-heading"><h2>A simpler workspace.</h2><button class="icon-button" data-close aria-label="Close settings"><svg><use href="#i-close"/></svg></button></div><p class="dialog-description">Clipy is running in frontend preview mode. Your drafts and preferences are stored only in this browser.</p><label class="toggle-row">Reduce caption motion<input id="reduce-motion" type="checkbox"></label><div class="settings-info"><strong>Video processing</strong><span>Not connected</span><p>No API keys are requested or stored in this frontend.</p></div><button class="secondary-button" id="clear-drafts">Clear local drafts</button><p class="input-hint">Only drafts saved on this device will be removed.</p></dialog>
+  <dialog id="delete-dialog"><h2>Delete this draft?</h2><p class="dialog-description">This removes the saved settings from this browser. It can’t be undone.</p><button class="primary-button" id="confirm-delete">Delete draft</button><button class="secondary-button" data-close>Keep draft</button></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>
