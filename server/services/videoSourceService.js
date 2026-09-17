@@ -77,12 +77,12 @@ async function getProcessableSource(clip, directory) {
     const ytdlpArgs = [
       '--no-playlist',
       '--js-runtimes', 'node',
-      '--extractor-args', 'youtube:player_client=mweb,tv,android,ios',
-      '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      '--extractor-args', 'youtube:player_client=tv_embedded,web_embedded,android_vr,ios,mweb',
+      '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
       '--merge-output-format', 'mp4',
       '--download-sections', `*${clip.startTime}-${clip.endTime}`,
       '--concurrent-fragments', '4',
-      '-f', 'bv*[height<=1080]+ba/b[height<=1080]',
+      '-f', 'bv*[height<=1080]+ba/b[height<=1080]/b',
       '-o', outputPath,
       clip.sourceUrl
     ];
