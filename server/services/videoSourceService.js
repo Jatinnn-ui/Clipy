@@ -1,6 +1,7 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 const { resolveExecutable } = require('./executableService');
@@ -24,7 +25,7 @@ function validateRequest(body, options = {}) {
   const startTime = Number(body.startTime), endTime = Number(body.endTime);
   if (!Number.isFinite(startTime) || startTime < 0) throw inputError('Start time must be zero or later.');
   if (!Number.isFinite(endTime) || endTime <= startTime) throw inputError('End time must be after start time.');
-  if (endTime - startTime > MAX_DURATION) throw inputError(`Clips are limited to ${MAX_DURATION} seconds.`);
+  if (endTime - startTime > MAX_DURATION) throw inputError('Clips are limited to ' + MAX_DURATION + ' seconds.');
   const aspectRatio = body.aspectRatio || '9:16', captionStyle = body.captionStyle || body.style || 'dynamic';
   if (!ratios.has(aspectRatio)) throw inputError('Choose a supported aspect ratio.');
   if (!styles.has(captionStyle)) throw inputError('Choose a supported caption style.');
@@ -33,18 +34,18 @@ function validateRequest(body, options = {}) {
 }
 function getAuthorizedSource(clip) {
   const sourceDirectory = process.env.AUTHORIZED_SOURCE_DIR;
-  if (!sourceDirectory) throw new Error('This video needs an authorized processable source. Configure a permitted source provider or provide the matching MP4 source file.');
-  const directory = path.resolve(sourceDirectory); const source = path.join(directory, `${clip.videoId}.mp4`);
-  if (!source.startsWith(directory + path.sep) || !fs.existsSync(source)) throw new Error(`Authorized source missing. Place ${clip.videoId}.mp4 in ${directory}, or configure a permitted source provider.`);
-  const wordsPath = path.join(directory, `${clip.videoId}.words.json`);
+  if (!sourceDirectory) throw new Error('This video needs an authorized processable source.');
+  const directory = path.resolve(sourceDirectory); const source = path.join(directory, clip.videoId + '.mp4');
+  if (!source.startsWith(directory + path.sep) || !fs.existsSync(source)) throw new Error('Authorized source missing. Place ' + clip.videoId + '.mp4 in ' + directory);
+  const wordsPath = path.join(directory, clip.videoId + '.words.json');
   return { path: source, wordsPath: fs.existsSync(wordsPath) ? wordsPath : null };
 }
 function findAuthorizedSource(clip) {
   const sourceDirectory = process.env.AUTHORIZED_SOURCE_DIR;
   if (!sourceDirectory) return null;
-  const directory = path.resolve(sourceDirectory); const source = path.join(directory, `${clip.videoId}.mp4`);
+  const directory = path.resolve(sourceDirectory); const source = path.join(directory, clip.videoId + '.mp4');
   if (!source.startsWith(directory + path.sep) || !fs.existsSync(source)) return null;
-  const wordsPath = path.join(directory, `${clip.videoId}.words.json`);
+  const wordsPath = path.join(directory, clip.videoId + '.words.json');
   return { path: source, wordsPath: fs.existsSync(wordsPath) ? wordsPath : null };
 }
 function runYtdlp(command, args) {
@@ -55,9 +56,7 @@ function runYtdlp(command, args) {
     child.on('close', code => code === 0 ? resolve() : reject(new Error(stderr.slice(-800))));
   });
 }
-async function findYtdlp() {
-  return resolveExecutable('yt-dlp');
-}
+async function findYtdlp() { return resolveExecutable('yt-dlp'); }
 async function verifyVideoFile(sourcePath) {
   const executable = await resolveExecutable('ffprobe');
   return new Promise((resolve, reject) => {
@@ -68,31 +67,51 @@ async function verifyVideoFile(sourcePath) {
     child.on('close', code => code === 0 && output.trim() === 'video' ? resolve() : reject(new Error(stderr.trim() || 'Downloaded source has no video stream.')));
   });
 }
+function writeCookiesFile() {
+  const cookiesEnv = process.env.YOUTUBE_COOKIES;
+  if (!cookiesEnv) return null;
+  try {
+    const cookiePath = path.join(os.tmpdir(), 'yt_cookies_' + process.pid + '.txt');
+    fs.writeFileSync(cookiePath, cookiesEnv, 'utf8');
+    return cookiePath;
+  } catch (err) {
+    console.warn('Could not write cookies file:', err.message);
+    return null;
+  }
+}
 async function getProcessableSource(clip, directory) {
   const authorizedSource = findAuthorizedSource(clip);
   if (authorizedSource) return authorizedSource;
   const executable = await findYtdlp();
-  const outputPath = path.join(directory, `${clip.videoId}.mp4`);
+  const outputPath = path.join(directory, clip.videoId + '.mp4');
+  const cookiesFile = writeCookiesFile();
   try {
     const ytdlpArgs = [
       '--no-playlist',
-      '--extractor-args', 'youtube:player_client=android_embedded,android,ios,mweb',
-      '--add-header', 'Accept-Language:en-US,en;q=0.9',
+      '--extractor-args', 'youtube:player_client=android,ios',
       '--merge-output-format', 'mp4',
-      '--download-sections', `*${clip.startTime}-${clip.endTime}`,
+      '--download-sections', '*' + clip.startTime + '-' + clip.endTime,
       '--concurrent-fragments', '4',
       '-f', 'bv*[height<=1080]+ba/b[height<=1080]/b',
       '-o', outputPath,
-      clip.sourceUrl
     ];
+    if (cookiesFile) {
+      ytdlpArgs.push('--cookies', cookiesFile);
+      console.log('Using YouTube cookies from YOUTUBE_COOKIES env var');
+    } else {
+      console.warn('YOUTUBE_COOKIES not set. Download may fail on cloud hosts.');
+    }
+    ytdlpArgs.push(clip.sourceUrl);
     await runYtdlp(executable, ytdlpArgs);
     await verifyVideoFile(outputPath);
     const fixtureDirectory = process.env.AUTHORIZED_SOURCE_DIR ? path.resolve(process.env.AUTHORIZED_SOURCE_DIR) : null;
-    const fixturePath = fixtureDirectory ? path.join(fixtureDirectory, `${clip.videoId}.words.json`) : null;
+    const fixturePath = fixtureDirectory ? path.join(fixtureDirectory, clip.videoId + '.words.json') : null;
     return { path: outputPath, wordsPath: fixturePath && fs.existsSync(fixturePath) ? fixturePath : null, clipRelative: true };
   } catch (err) {
     console.error('yt-dlp / video source download failed:', err);
-    throw new Error(`Could not obtain a processable video source from this YouTube URL. (${err.message || 'Unknown error'})`);
+    throw new Error('Could not obtain a processable video source from this YouTube URL. (' + (err.message || 'Unknown error') + ')');
+  } finally {
+    if (cookiesFile) { try { fs.unlinkSync(cookiesFile); } catch {} }
   }
 }
 module.exports = { validateRequest, extractVideoId, getAuthorizedSource, getProcessableSource, MAX_DURATION };
