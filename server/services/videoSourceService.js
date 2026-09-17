@@ -79,8 +79,9 @@ async function getProcessableSource(clip, directory) {
     const fixtureDirectory = process.env.AUTHORIZED_SOURCE_DIR ? path.resolve(process.env.AUTHORIZED_SOURCE_DIR) : null;
     const fixturePath = fixtureDirectory ? path.join(fixtureDirectory, `${clip.videoId}.words.json`) : null;
     return { path: outputPath, wordsPath: fixturePath && fs.existsSync(fixturePath) ? fixturePath : null, clipRelative: true };
-  } catch {
-    throw new Error('Could not obtain a processable video source from this YouTube URL.');
+  } catch (err) {
+    console.error('yt-dlp / video source download failed:', err);
+    throw new Error(`Could not obtain a processable video source from this YouTube URL. (${err.message || 'Unknown error'})`);
   }
 }
 module.exports = { validateRequest, extractVideoId, getAuthorizedSource, getProcessableSource, MAX_DURATION };
