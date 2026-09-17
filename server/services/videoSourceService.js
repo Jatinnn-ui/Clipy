@@ -74,7 +74,18 @@ async function getProcessableSource(clip, directory) {
   const executable = await findYtdlp();
   const outputPath = path.join(directory, `${clip.videoId}.mp4`);
   try {
-    await runYtdlp(executable, ['--no-playlist', '--no-cookies', '--merge-output-format', 'mp4', '--download-sections', `*${clip.startTime}-${clip.endTime}`, '--concurrent-fragments', '4', '-f', 'bv*[height<=1080]+ba/b[height<=1080]', '-o', outputPath, clip.sourceUrl]);
+    const ytdlpArgs = [
+      '--no-playlist',
+      '--extractor-args', 'youtube:player_client=ios,web_creator',
+      '--user-agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+      '--merge-output-format', 'mp4',
+      '--download-sections', `*${clip.startTime}-${clip.endTime}`,
+      '--concurrent-fragments', '4',
+      '-f', 'bv*[height<=1080]+ba/b[height<=1080]',
+      '-o', outputPath,
+      clip.sourceUrl
+    ];
+    await runYtdlp(executable, ytdlpArgs);
     await verifyVideoFile(outputPath);
     const fixtureDirectory = process.env.AUTHORIZED_SOURCE_DIR ? path.resolve(process.env.AUTHORIZED_SOURCE_DIR) : null;
     const fixturePath = fixtureDirectory ? path.join(fixtureDirectory, `${clip.videoId}.words.json`) : null;
